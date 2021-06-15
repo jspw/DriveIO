@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.hulululu.drive</groupId>
-    <artifactId>HulululuDrive</artifactId>
+    <artifactId>DriveIO</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <repositories>
@@ -30,4 +30,5 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
+    <name>DriveIO</name>
 </project>

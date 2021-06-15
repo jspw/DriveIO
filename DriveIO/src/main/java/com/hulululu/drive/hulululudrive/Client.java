@@ -5,7 +5,6 @@
  */
 package com.hulululu.drive.hulululudrive;
 
-import static com.hulululu.drive.hulululudrive.Server.createStorageDir;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,7 +34,7 @@ import javax.swing.SwingUtilities;
  * @author jspw
  */
 public class Client extends javax.swing.JFrame {
-    
+
     private Socket socket;
     static ObjectOutputStream out;
     static ObjectInputStream in;
@@ -48,6 +47,7 @@ public class Client extends javax.swing.JFrame {
     private JMenuItem deleteMenuItem;
     private JMenuItem downloadMenuItem;
     int selectedFileToDownload;
+    int selectedFileToDelete;
     File[] downloadDirectory = new File[1];
 
     /**
@@ -61,12 +61,12 @@ public class Client extends javax.swing.JFrame {
         deleteMenuItem = new JMenuItem("Delete");
         popupOptions.add(downloadMenuItem);
         popupOptions.add(deleteMenuItem);
-        
+
         downloadMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 try {
 
-                    //                System.out.println("asasdas");
+                    //download file
                     JFileChooser fileChooser = new JFileChooser();
                     fileChooser.setDialogTitle("Choose A Folder");
                     fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -75,7 +75,7 @@ public class Client extends javax.swing.JFrame {
                         //             Get the selected file.               
                         downloadDirectory[0] = fileChooser.getSelectedFile();
                         //             Change the text of the java swing label to have the file name.      
-                        
+
                         System.out.println(downloadDirectory[0].getName());
                     }
                     //sending file name to get full file
@@ -84,13 +84,13 @@ public class Client extends javax.swing.JFrame {
                     data.setStatus("new");
                     data.setName("download");
                     out.writeObject(data);
-                    
+
                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
                     // Get the name of the file you want to send and store it in filename.
                     String fileName = fileNameList.get(selectedFileToDownload);
                     // Convert the name of the file into an array of bytes to be sent to the server.
                     byte[] fileNameBytes = fileName.getBytes();
-                    
+
                     dataOutputStream.writeInt(fileNameBytes.length);
                     // Send the file name.
                     dataOutputStream.write(fileNameBytes);
@@ -131,19 +131,61 @@ public class Client extends javax.swing.JFrame {
                             } catch (IOException ex) {
                                 JOptionPane.showMessageDialog(Client.this, ex, "Error", JOptionPane.ERROR_MESSAGE);
                             }
-                            
+
                         }
                     }
-                    
+
                 } catch (IOException ex) {
                     Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         });
-        
+
+        deleteMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                try {
+                    /// delete file
+
+//                    /send type of action
+                    out = new ObjectOutputStream(socket.getOutputStream());
+                    DataModel data = new DataModel();
+                    data.setStatus("new");
+                    data.setName("delete");
+                    out.writeObject(data);
+
+                    // send file name with length to delete
+                    DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                    // Get the name of the file you want to send and store it in filename.
+                    String fileName = fileNameList.get(selectedFileToDelete);
+                    // Convert the name of the file into an array of bytes to be sent to the server.
+                    byte[] fileNameBytes = fileName.getBytes();
+
+                    dataOutputStream.writeInt(fileNameBytes.length);
+                    // Send the file name.
+                    dataOutputStream.write(fileNameBytes);
+
+                    /// file name list from server
+                    ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream()); //Error Line!
+                    Object object = objectInput.readObject();
+                    fileNameList = (ArrayList<String>) object;
+
+                    loadFiles();
+                    fileList.repaint();
+                    
+                    sendFileName.setText("File Deleted Successfully");
+
+                } catch (IOException ex) {
+                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+        });
+
     }
-    
+
     public static String createStorageDir() {
         String currentDir = Path.of("").toAbsolutePath().toString();
         System.out.println(currentDir);
@@ -154,7 +196,7 @@ public class Client extends javax.swing.JFrame {
         };
         return newDir;
     }
-    
+
     void loadFiles() {
         fileListModel.clear();
         for (int i = 0; i < fileNameList.size(); i++) {
@@ -457,15 +499,15 @@ public class Client extends javax.swing.JFrame {
                 Object object = objectInput.readObject();
                 fileNameList = (ArrayList<String>) object;
                 System.out.println(fileNameList);
-                
+
                 loadFiles();
                 fileList.setModel(fileListModel);
-                
+
             } catch (Exception error) {
                 JOptionPane.showMessageDialog(Client.this, error, "Error", JOptionPane.ERROR_MESSAGE);
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, error);
             }
-            
+
         }
 
     }//GEN-LAST:event_connectServerbuttonActionPerformed
@@ -473,15 +515,15 @@ public class Client extends javax.swing.JFrame {
     private void chooseFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseFileButtonActionPerformed
         // TODO add your handling code here:
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Choose A File Bitch");
+        fileChooser.setDialogTitle("Choose A File To Upload");
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             //            JOptionPane.showMessageDialog(client.this, "Yo Bitch", "Success", JOptionPane.DEFAULT_OPTION);
             //             Get the selected file.
             fileToSend[0] = fileChooser.getSelectedFile();
             //             Change the text of the java swing label to have the file name.
             System.out.println(fileToSend[0].getName());
-            
-            sendFileName.setText("The file you want to send is: " + fileToSend[0].getName());
+
+            sendFileName.setText("The Selected  file to send : " + fileToSend[0].getName());
         }
     }//GEN-LAST:event_chooseFileButtonActionPerformed
 
@@ -492,7 +534,6 @@ public class Client extends javax.swing.JFrame {
             // If a file has been selected then do the following.
         } else {
             try {
-                //                        Socket socket = new Socket(serverIpTextField.getText(),Integer.parseInt(serverPortTextField.getText()));
 
                 /// send title upload file
                 out = new ObjectOutputStream(socket.getOutputStream());
@@ -528,7 +569,7 @@ public class Client extends javax.swing.JFrame {
                 ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream()); //Error Line!
                 Object object = objectInput.readObject();
                 fileNameList = (ArrayList<String>) object;
-                
+
                 loadFiles();
                 //                fileList.revalidate();
                 fileList.repaint();
@@ -550,17 +591,18 @@ public class Client extends javax.swing.JFrame {
         // TODO add your handling code here:
 //        popupOptions.show(introLabel, evt.getX() + 50, evt.getY() + 50);
         System.out.println("sdasdas");
-        
+
         if (SwingUtilities.isRightMouseButton(evt)) {
             System.out.println("isPopupTrigger");
             int index = fileList.locationToIndex(evt.getPoint());
             Rectangle pathBounds = fileList.getCellBounds(index, index);
-            
+
             if (pathBounds != null && pathBounds.contains(evt.getX(), evt.getY())) {
                 System.out.println("pathBounds");
                 fileList.setSelectedIndex((fileList.locationToIndex(evt.getPoint())));
                 popupOptions.show(fileList, evt.getX(), evt.getY());
                 selectedFileToDownload = fileList.locationToIndex(evt.getPoint());
+                selectedFileToDelete = fileList.locationToIndex(evt.getPoint());
             }
         }
     }//GEN-LAST:event_fileListMouseReleased

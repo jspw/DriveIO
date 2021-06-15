@@ -27,12 +27,14 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -61,6 +63,7 @@ public class ServerTest extends javax.swing.JFrame {
     static OutputStream os = null;
     DefaultListModel fileListModel;
     static boolean serverOn = false;
+    final File[] fileToSend = new File[1];
 
     /**
      * Creates new form Server
@@ -423,6 +426,50 @@ public class ServerTest extends javax.swing.JFrame {
 
                                 }
 
+                            } else if (type.equals("delete")) {
+//                                dsda
+
+                                DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+                                // Read the size of the file name so know when to stop reading.
+                                int fileNameLength = dataInputStream.readInt();
+
+                                if (fileNameLength > 0) {
+                                    // Byte array to hold name of file.
+                                    byte[] fileNameBytesx = new byte[fileNameLength];
+                                    // Read from the input stream into the byte array.
+                                    dataInputStream.readFully(fileNameBytesx, 0, fileNameBytesx.length);
+                                    // Create the file name from the byte array.
+                                    String fileNamex = new String(fileNameBytesx);
+
+                                    System.out.println(fileNamex);
+
+                                    final File[] fileToDelete = new File[1];
+
+                                    for (int i = 0; i < files.length; i++) {
+                                        if (files[i].getName().equals(fileNamex)) {
+                                            fileToDelete[0] = files[i];
+                                            break;
+                                        }
+                                    }
+
+                                    System.out.println(fileToDelete[0].getName());
+
+                                    ///delete file from storage
+                                    fileToDelete[0].delete();
+
+                                    System.out.println("File Deleted!");
+
+                                    //send new filelsit name
+                                    loadFiles();
+//                                        fileList.revalidate();
+//                                        fileList.repaint();
+                                    ObjectOutputStream x = new ObjectOutputStream(socket.getOutputStream());
+                                    x.writeObject(fileNameList);
+//                                        fileManJframe.revalidate();
+                                    initFileManager();
+                                    fileManJframe.repaint();
+
+                                }
                             }
 
                         } catch (IOException e) {
@@ -493,13 +540,16 @@ public class ServerTest extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton chooseFileButton;
     private javax.swing.JButton createServerbutton;
     private javax.swing.JInternalFrame fileManJframe;
+    private javax.swing.JButton fileSendButton;
     private javax.swing.JLabel introLabel;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JLabel receivedFileStatus;
     private javax.swing.JLabel serverIpLabel;
     private javax.swing.JTextField serverIpTextField;
