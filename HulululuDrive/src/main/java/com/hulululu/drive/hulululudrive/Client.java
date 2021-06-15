@@ -33,7 +33,7 @@ import javax.swing.JPopupMenu;
  * @author jspw
  */
 public class Client extends javax.swing.JFrame {
-
+    
     private Socket socket;
     static ObjectOutputStream out;
     static ObjectInputStream in;
@@ -55,10 +55,11 @@ public class Client extends javax.swing.JFrame {
         popupOptions = new JPopupMenu("A");
         deleteMenuItem = new JMenuItem("Download");
         popupOptions.add(deleteMenuItem);
-
+        
         deleteMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 try {
+
                     //                System.out.println("asasdas");
                     //sending file name to get full file
                     out = new ObjectOutputStream(socket.getOutputStream());
@@ -66,13 +67,13 @@ public class Client extends javax.swing.JFrame {
                     data.setStatus("new");
                     data.setName("download");
                     out.writeObject(data);
-
+                    
                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
                     // Get the name of the file you want to send and store it in filename.
                     String fileName = fileNameList.get(selectedFileToDownload);
                     // Convert the name of the file into an array of bytes to be sent to the server.
                     byte[] fileNameBytes = fileName.getBytes();
-
+                    
                     dataOutputStream.writeInt(fileNameBytes.length);
                     // Send the file name.
                     dataOutputStream.write(fileNameBytes);
@@ -112,20 +113,20 @@ public class Client extends javax.swing.JFrame {
                             } catch (IOException ex) {
                                 JOptionPane.showMessageDialog(Client.this, ex, "Error", JOptionPane.ERROR_MESSAGE);
                             }
-
+                            
                         }
                     }
-
+                    
                 } catch (IOException ex) {
                     Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
+                
             }
         });
-
+        
     }
     
-        public static String createStorageDir() {
+    public static String createStorageDir() {
         String currentDir = Path.of("").toAbsolutePath().toString();
         System.out.println(currentDir);
         String newDir = currentDir + "/local";
@@ -135,7 +136,7 @@ public class Client extends javax.swing.JFrame {
         };
         return newDir;
     }
-
+    
     void loadFiles() {
         fileListModel.clear();
         for (int i = 0; i < fileNameList.size(); i++) {
@@ -161,7 +162,7 @@ public class Client extends javax.swing.JFrame {
         connectServerbutton = new javax.swing.JButton();
         statusLabel = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        username = new javax.swing.JTextField();
         title = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         fileUploadProgressbar = new javax.swing.JProgressBar();
@@ -173,6 +174,7 @@ public class Client extends javax.swing.JFrame {
         fileSendButton = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
+        disconnectButton = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -219,12 +221,12 @@ public class Client extends javax.swing.JFrame {
         statusLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         statusLabel.setText("Please Connect To A Server");
 
+        jLabel1.setFont(new java.awt.Font("Amiri", 0, 13)); // NOI18N
         jLabel1.setText("User : ");
 
-        jTextField1.setText("username");
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        username.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                usernameActionPerformed(evt);
             }
         });
 
@@ -238,7 +240,7 @@ public class Client extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(36, 36, 36)
                         .addComponent(serverIpLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -262,7 +264,7 @@ public class Client extends javax.swing.JFrame {
                     .addComponent(serverIpTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(serverIpLabel)
                     .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(6, 6, 6)
                 .addComponent(statusLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -343,6 +345,15 @@ public class Client extends javax.swing.JFrame {
         );
 
         jMenu1.setText("File");
+
+        disconnectButton.setText("Disconnect");
+        disconnectButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                disconnectButtonActionPerformed(evt);
+            }
+        });
+        jMenu1.add(disconnectButton);
+
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Edit");
@@ -414,10 +425,11 @@ public class Client extends javax.swing.JFrame {
             port = Integer.parseInt(serverPortTextField.getText());
             try {
                 socket = new Socket(serverIp, port);
+                connectServerbutton.setEnabled(false);
                 out = new ObjectOutputStream(socket.getOutputStream());
                 DataModel data = new DataModel();
                 data.setStatus("new");
-                data.setName("MH Shifat");
+                data.setName(username.getText());
                 out.writeObject(data);
                 out.flush();
                 statusLabel.setText("Connected To Server!");
@@ -427,15 +439,15 @@ public class Client extends javax.swing.JFrame {
                 Object object = objectInput.readObject();
                 fileNameList = (ArrayList<String>) object;
                 System.out.println(fileNameList);
-
+                
                 loadFiles();
                 fileList.setModel(fileListModel);
-
+                
             } catch (Exception error) {
                 JOptionPane.showMessageDialog(Client.this, error, "Error", JOptionPane.ERROR_MESSAGE);
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, error);
             }
-
+            
         }
 
     }//GEN-LAST:event_connectServerbuttonActionPerformed
@@ -450,7 +462,7 @@ public class Client extends javax.swing.JFrame {
             fileToSend[0] = fileChooser.getSelectedFile();
             //             Change the text of the java swing label to have the file name.
             System.out.println(fileToSend[0].getName());
-
+            
             sendFileName.setText("The file you want to send is: " + fileToSend[0].getName());
         }
     }//GEN-LAST:event_chooseFileButtonActionPerformed
@@ -498,7 +510,7 @@ public class Client extends javax.swing.JFrame {
                 ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream()); //Error Line!
                 Object object = objectInput.readObject();
                 fileNameList = (ArrayList<String>) object;
-
+                
                 loadFiles();
                 //                fileList.revalidate();
                 fileList.repaint();
@@ -512,9 +524,9 @@ public class Client extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_fileSendButtonActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void usernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_usernameActionPerformed
 
     private void fileListMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fileListMouseReleased
         // TODO add your handling code here:
@@ -522,6 +534,18 @@ public class Client extends javax.swing.JFrame {
         fileList.setComponentPopupMenu(popupOptions);
         selectedFileToDownload = fileList.locationToIndex(evt.getPoint());
     }//GEN-LAST:event_fileListMouseReleased
+
+    private void disconnectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disconnectButtonActionPerformed
+        // TODO add your handling code here:
+        disconnectButton.setEnabled(false);
+        connectServerbutton.setEnabled(true);
+        try {
+            socket.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+             JOptionPane.showMessageDialog(Client.this, ex, "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_disconnectButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -561,6 +585,7 @@ public class Client extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton chooseFileButton;
     private javax.swing.JButton connectServerbutton;
+    private javax.swing.JMenuItem disconnectButton;
     private javax.swing.JList<String> fileList;
     private javax.swing.JButton fileSendButton;
     private javax.swing.JProgressBar fileUploadProgressbar;
@@ -572,7 +597,6 @@ public class Client extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel sendFileName;
     private javax.swing.JLabel serverIpLabel;
     private javax.swing.JTextField serverIpTextField;
@@ -581,5 +605,6 @@ public class Client extends javax.swing.JFrame {
     private javax.swing.JLabel statusLabel;
     private javax.swing.JLabel title;
     private javax.swing.JPanel titlePanel;
+    private javax.swing.JTextField username;
     // End of variables declaration//GEN-END:variables
 }

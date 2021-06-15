@@ -140,7 +140,7 @@ public class Server extends javax.swing.JFrame {
         title.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         title.setText("Server");
 
-        serverIpLabel.setFont(new java.awt.Font("Ubuntu", 0, 14)); // NOI18N
+        serverIpLabel.setFont(new java.awt.Font("Amiri", 0, 14)); // NOI18N
         serverIpLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         serverIpLabel.setText("IP Address : ");
         serverIpLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
@@ -152,7 +152,7 @@ public class Server extends javax.swing.JFrame {
             }
         });
 
-        serverPortLabel.setFont(new java.awt.Font("Ubuntu", 0, 14)); // NOI18N
+        serverPortLabel.setFont(new java.awt.Font("Amiri", 0, 14)); // NOI18N
         serverPortLabel.setText("Port : ");
 
         serverPortTextField.setText("5000");
@@ -162,6 +162,7 @@ public class Server extends javax.swing.JFrame {
             }
         });
 
+        createServerbutton.setFont(new java.awt.Font("Cantarell Extra Bold", 0, 13)); // NOI18N
         createServerbutton.setText("Create Server");
         createServerbutton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -178,17 +179,17 @@ public class Server extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(title, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(26, 26, 26)
                 .addComponent(serverIpLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(31, 31, 31)
                 .addComponent(serverIpTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27)
+                .addGap(57, 57, 57)
                 .addComponent(serverPortLabel)
                 .addGap(18, 18, 18)
                 .addComponent(serverPortTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 174, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 106, Short.MAX_VALUE)
                 .addComponent(createServerbutton)
-                .addContainerGap())
+                .addGap(27, 27, 27))
             .addComponent(introLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
@@ -237,7 +238,7 @@ public class Server extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(receivedFileStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE))
         );
 
         serverTernimateButton.setText("Server");
@@ -360,7 +361,7 @@ public class Server extends javax.swing.JFrame {
                                     }
                                 }
                             } else {
-                                
+
                                 //get file name for sending to client
                                 DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                                 // Read the size of the file name so know when to stop reading.
@@ -373,9 +374,9 @@ public class Server extends javax.swing.JFrame {
                                     dataInputStream.readFully(fileNameBytesx, 0, fileNameBytesx.length);
                                     // Create the file name from the byte array.
                                     String fileNamex = new String(fileNameBytesx);
-                                    
+
                                     System.out.println(fileNamex);
-                                    
+
                                     final File[] fileToSend = new File[1];
 
                                     for (int i = 0; i < files.length; i++) {
@@ -384,7 +385,7 @@ public class Server extends javax.swing.JFrame {
                                             break;
                                         }
                                     }
-                                    
+
                                     // Create an input stream into the file you want to send.
                                     FileInputStream fileInputStream = new FileInputStream(fileToSend[0].getAbsolutePath());
                                     // Create a socket connection to connect with the server.
