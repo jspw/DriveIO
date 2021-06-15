@@ -33,7 +33,7 @@ import javax.swing.JPopupMenu;
  * @author jspw
  */
 public class Client extends javax.swing.JFrame {
-    
+
     private Socket socket;
     static ObjectOutputStream out;
     static ObjectInputStream in;
@@ -44,7 +44,9 @@ public class Client extends javax.swing.JFrame {
     ArrayList<String> fileNameList = new ArrayList<String>();
     private JPopupMenu popupOptions;
     private JMenuItem deleteMenuItem;
+     private JMenuItem downloadMenuItem;
     int selectedFileToDownload;
+    File[] downloadDirectory =  new File[1];;
 
     /**
      * Creates new form Client
@@ -53,13 +55,24 @@ public class Client extends javax.swing.JFrame {
         initComponents();
         fileListModel = new DefaultListModel();
         popupOptions = new JPopupMenu("A");
-        deleteMenuItem = new JMenuItem("Download");
+        deleteMenuItem = new JMenuItem("Delete");
+        downloadMenuItem = new JMenuItem("Download");
         popupOptions.add(deleteMenuItem);
-        
+         popupOptions.add(downloadMenuItem);
+
         deleteMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 try {
-
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Choose A File");
+                    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                        //            JOptionPane.showMessageDialog(client.this, "Yo Bitch", "Success", JOptionPane.DEFAULT_OPTION);
+                        //             Get the selected file.
+                        downloadDirectory[0] = fileChooser.getSelectedFile();
+                        //             Change the text of the java swing label to have the file name.
+                        System.out.println(downloadDirectory[0].getName());
+                    }
                     //                System.out.println("asasdas");
                     //sending file name to get full file
                     out = new ObjectOutputStream(socket.getOutputStream());
@@ -67,13 +80,13 @@ public class Client extends javax.swing.JFrame {
                     data.setStatus("new");
                     data.setName("download");
                     out.writeObject(data);
-                    
+
                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
                     // Get the name of the file you want to send and store it in filename.
                     String fileName = fileNameList.get(selectedFileToDownload);
                     // Convert the name of the file into an array of bytes to be sent to the server.
                     byte[] fileNameBytes = fileName.getBytes();
-                    
+
                     dataOutputStream.writeInt(fileNameBytes.length);
                     // Send the file name.
                     dataOutputStream.write(fileNameBytes);
@@ -106,26 +119,27 @@ public class Client extends javax.swing.JFrame {
 
                             //save file in storage
                             String storageDir = createStorageDir();
-                            File file = new File(storageDir + "/" + fileName);
+                            File file = new File( downloadDirectory[0] .getAbsolutePath() + '/' + fileName);
                             Path path = Paths.get(file.getAbsolutePath());
                             try {
                                 Files.write(path, fileContentBytes);
+                                sendFileName.setText(fileName +  " downloaded at : " + path);
                             } catch (IOException ex) {
                                 JOptionPane.showMessageDialog(Client.this, ex, "Error", JOptionPane.ERROR_MESSAGE);
                             }
-                            
+
                         }
                     }
-                    
+
                 } catch (IOException ex) {
                     Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         });
-        
+
     }
-    
+
     public static String createStorageDir() {
         String currentDir = Path.of("").toAbsolutePath().toString();
         System.out.println(currentDir);
@@ -136,7 +150,7 @@ public class Client extends javax.swing.JFrame {
         };
         return newDir;
     }
-    
+
     void loadFiles() {
         fileListModel.clear();
         for (int i = 0; i < fileNameList.size(); i++) {
@@ -439,15 +453,15 @@ public class Client extends javax.swing.JFrame {
                 Object object = objectInput.readObject();
                 fileNameList = (ArrayList<String>) object;
                 System.out.println(fileNameList);
-                
+
                 loadFiles();
                 fileList.setModel(fileListModel);
-                
+
             } catch (Exception error) {
                 JOptionPane.showMessageDialog(Client.this, error, "Error", JOptionPane.ERROR_MESSAGE);
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, error);
             }
-            
+
         }
 
     }//GEN-LAST:event_connectServerbuttonActionPerformed
@@ -455,14 +469,14 @@ public class Client extends javax.swing.JFrame {
     private void chooseFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseFileButtonActionPerformed
         // TODO add your handling code here:
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Choose A File Bitch");
+        fileChooser.setDialogTitle("Choose A File");
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             //            JOptionPane.showMessageDialog(client.this, "Yo Bitch", "Success", JOptionPane.DEFAULT_OPTION);
             //             Get the selected file.
             fileToSend[0] = fileChooser.getSelectedFile();
             //             Change the text of the java swing label to have the file name.
             System.out.println(fileToSend[0].getName());
-            
+
             sendFileName.setText("The file you want to send is: " + fileToSend[0].getName());
         }
     }//GEN-LAST:event_chooseFileButtonActionPerformed
@@ -474,8 +488,6 @@ public class Client extends javax.swing.JFrame {
             // If a file has been selected then do the following.
         } else {
             try {
-                //                        Socket socket = new Socket(serverIpTextField.getText(),Integer.parseInt(serverPortTextField.getText()));
-
                 /// send title upload file
                 out = new ObjectOutputStream(socket.getOutputStream());
                 DataModel data = new DataModel();
@@ -510,7 +522,7 @@ public class Client extends javax.swing.JFrame {
                 ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream()); //Error Line!
                 Object object = objectInput.readObject();
                 fileNameList = (ArrayList<String>) object;
-                
+
                 loadFiles();
                 //                fileList.revalidate();
                 fileList.repaint();
@@ -543,7 +555,7 @@ public class Client extends javax.swing.JFrame {
             socket.close();
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-             JOptionPane.showMessageDialog(Client.this, ex, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(Client.this, ex, "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_disconnectButtonActionPerformed
 
