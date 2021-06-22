@@ -44,8 +44,10 @@ public class Client extends javax.swing.JFrame {
     DefaultListModel fileListModel;
     ArrayList<String> fileNameList = new ArrayList<String>();
     private JPopupMenu popupOptions;
+    private JPopupMenu popupOption2;
     private JMenuItem deleteMenuItem;
     private JMenuItem downloadMenuItem;
+    private JMenuItem uploadMenuItem;
     int selectedFileToDownload;
     int selectedFileToDelete;
     File[] downloadDirectory = new File[1];
@@ -57,10 +59,14 @@ public class Client extends javax.swing.JFrame {
         initComponents();
         fileListModel = new DefaultListModel();
         popupOptions = new JPopupMenu("A");
+        popupOption2 = new JPopupMenu("B");
         downloadMenuItem = new JMenuItem("Download");
         deleteMenuItem = new JMenuItem("Delete");
+        uploadMenuItem = new JMenuItem("Upload");
         popupOptions.add(downloadMenuItem);
         popupOptions.add(deleteMenuItem);
+        popupOptions.add(uploadMenuItem);
+        popupOption2.add(uploadMenuItem);
 
         downloadMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
@@ -172,7 +178,7 @@ public class Client extends javax.swing.JFrame {
 
                     loadFiles();
                     fileList.repaint();
-                    
+
                     sendFileName.setText("File Deleted Successfully");
 
                 } catch (IOException ex) {
@@ -181,6 +187,74 @@ public class Client extends javax.swing.JFrame {
                     Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
+            }
+        });
+
+        uploadMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Choose A File To Upload");
+                if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    //            JOptionPane.showMessageDialog(client.this, "Yo Bitch", "Success", JOptionPane.DEFAULT_OPTION);
+                    //             Get the selected file.
+                    fileToSend[0] = fileChooser.getSelectedFile();
+                    //             Change the text of the java swing label to have the file name.
+                    System.out.println(fileToSend[0].getName());
+
+                    sendFileName.setText("The Selected  file to send : " + fileToSend[0].getName());
+                    if (fileToSend[0] == null) {
+                        sendFileName.setText("Please choose a file to send first!");
+                        // If a file has been selected then do the following.
+                    } else {
+                        try {
+
+                            /// send title upload file
+                            out = new ObjectOutputStream(socket.getOutputStream());
+                            DataModel data = new DataModel();
+                            data.setStatus("new");
+                            data.setName("upload");
+                            out.writeObject(data);
+
+                            // Create an input stream into the file you want to send.
+                            FileInputStream fileInputStream = new FileInputStream(fileToSend[0].getAbsolutePath());
+                            // Create a socket connection to connect with the server.
+                            // Create an output stream to write to write to the server over the socket connection.
+                            DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                            // Get the name of the file you want to send and store it in filename.
+                            String fileName = fileToSend[0].getName();
+                            // Convert the name of the file into an array of bytes to be sent to the server.
+                            byte[] fileNameBytes = fileName.getBytes();
+                            // Create a byte array the size of the file so don't send too little or too much data to the server.
+                            byte[] fileBytes = new byte[(int) fileToSend[0].length()];
+                            // Put the contents of the file into the array of bytes to be sent so these bytes can be sent to the server.
+                            fileInputStream.read(fileBytes);
+                            // Send the length of the name of the file so server knows when to stop reading.
+                            dataOutputStream.writeInt(fileNameBytes.length);
+                            // Send the file name.
+                            dataOutputStream.write(fileNameBytes);
+                            // Send the length of the byte array so the server knows when to stop reading.
+                            dataOutputStream.writeInt(fileBytes.length);
+                            // Send the actual file.
+                            dataOutputStream.write(fileBytes);
+                            sendFileName.setText("File Sent");
+
+                            //// file name list from server
+                            ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream()); //Error Line!
+                            Object object = objectInput.readObject();
+                            fileNameList = (ArrayList<String>) object;
+
+                            loadFiles();
+                            //                fileList.revalidate();
+                            fileList.repaint();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(Client.this, ex, "Error", JOptionPane.ERROR_MESSAGE);
+                        } catch (ClassNotFoundException ex) {
+                            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                            JOptionPane.showMessageDialog(Client.this, ex, "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
             }
         });
 
@@ -482,7 +556,7 @@ public class Client extends javax.swing.JFrame {
         //            JOptionPane.showMessageDialog(client.this, "Please Enter A Valid IP Address!", "Error", JOptionPane.ERROR_MESSAGE);
         //        }
         else {
-            
+
             try {
                 port = Integer.parseInt(serverPortTextField.getText());
                 socket = new Socket(serverIp, port);
@@ -597,6 +671,8 @@ public class Client extends javax.swing.JFrame {
             System.out.println("isPopupTrigger");
             int index = fileList.locationToIndex(evt.getPoint());
             Rectangle pathBounds = fileList.getCellBounds(index, index);
+            popupOption2.show(fileList, evt.getX(), evt.getY());
+//             popupOptions.show(fileList, evt.getX(), evt.getY());
 
             if (pathBounds != null && pathBounds.contains(evt.getX(), evt.getY())) {
                 System.out.println("pathBounds");

@@ -21,8 +21,10 @@ import java.io.OutputStream;
 import static java.lang.System.in;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +32,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
@@ -74,10 +77,16 @@ public class ServerTest extends javax.swing.JFrame {
         JMenuItem delete = new JMenuItem("Delete");
         popupOptions.add(delete);
         try {
-            String serverIp = InetAddress.getLocalHost().getHostAddress();
+          InetAddress localhost = InetAddress.getLocalHost();
+          
+          System.out.println("System IP Address : " +
+                      (localhost.getHostAddress()).trim());
+
+            String serverIp = "192.168.0.106";
+
             serverIpTextField.setText(serverIp);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, ex);
         }
         terminateServerButton.setEnabled(false);
 
@@ -317,6 +326,8 @@ public class ServerTest extends javax.swing.JFrame {
                     serverOn = true;
                     //                    socket = serverSocket.accept();
                     socket = serverSocket.accept();
+
+                    //get user name
                     ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                     DataModel data = (DataModel) in.readObject();
                     String name = data.getName();
