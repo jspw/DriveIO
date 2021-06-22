@@ -2,3 +2,5 @@
 /test/target/
 /Client/target/
 /Server/target/
+/Client/Client/target/
+/Server/Server/target/

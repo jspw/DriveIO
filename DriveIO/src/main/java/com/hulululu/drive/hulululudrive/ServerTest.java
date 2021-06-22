@@ -91,6 +91,10 @@ public class ServerTest extends javax.swing.JFrame {
     void initFileManager() {
         FileManager fileManager = new FileManager();
         fileManJframe.setContentPane(fileManager.getGui());
+        fileManJframe.pack();
+//                fileManJframe.setLocationByPlatform(true);
+        fileManJframe.setMinimumSize(fileManJframe.getSize());
+        fileManJframe.setVisible(true);
         fileManager.showRootFile();
 //        frame1.setExtendedState(JFrame.MAXIMIZED_BOTH); 
     }
@@ -323,7 +327,6 @@ public class ServerTest extends javax.swing.JFrame {
                     objectOutput.writeObject(fileNameList);
 
                     while (true) {
-
                         try {
 
                             ObjectInputStream sss = new ObjectInputStream(socket.getInputStream());

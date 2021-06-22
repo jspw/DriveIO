@@ -482,8 +482,9 @@ public class Client extends javax.swing.JFrame {
         //            JOptionPane.showMessageDialog(client.this, "Please Enter A Valid IP Address!", "Error", JOptionPane.ERROR_MESSAGE);
         //        }
         else {
-            port = Integer.parseInt(serverPortTextField.getText());
+            
             try {
+                port = Integer.parseInt(serverPortTextField.getText());
                 socket = new Socket(serverIp, port);
                 connectServerbutton.setEnabled(false);
                 out = new ObjectOutputStream(socket.getOutputStream());
